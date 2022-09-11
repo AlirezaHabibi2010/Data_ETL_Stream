@@ -9,6 +9,12 @@ from sqlalchemy.types import Float, String
 
 
 def mysql_obj():
+    """
+    Create Table Schema
+    return:
+        metadata_obj_sql: metadata Table in MySQL
+        devices_agg: aggregated metadata Table in MySQL
+    """
     metadata_obj_sql = MetaData()
     devices_agg = Table(
         "devices_agg",
@@ -23,17 +29,35 @@ def mysql_obj():
 
 
 def drop_table(table_name, engine):
+    """
+    drop table if it exist
+    input:
+        table_name: str: the name of the table
+        engine: MySQL engine
+    return:
+        None
+    """
     Base = declarative_base()
     metadata = MetaData()
     metadata.reflect(bind=engine)
     try:
         table = metadata.tables[table_name]
         if table is not None:
-             Base.metadata.drop_all(engine, [table], checkfirst=True)
+            Base.metadata.drop_all(engine, [table], checkfirst=True)
     except:
         pass
 
-def create_mysql_engine(drop_if_exist=0):
+
+def create_mysql_engine(drop_if_exist=False):
+    """
+    Launch the MySQL engine
+    input:
+        drop_if_exist: Bool
+            drop the table of it exist
+    return:
+        devices_agg: aggregated metadata Table in MySQL
+        mysql_engine: MySQL engine
+    """
     while True:
         try:
             mysql_engine = create_engine(
@@ -42,7 +66,7 @@ def create_mysql_engine(drop_if_exist=0):
                 pool_size=10,  # echo=True,
             )
             if drop_if_exist:
-                drop_table('devices_agg', engine=mysql_engine)
+                drop_table("devices_agg", engine=mysql_engine)
 
             metadata_obj_sql, devices_agg = mysql_obj()
 
@@ -55,17 +79,26 @@ def create_mysql_engine(drop_if_exist=0):
     return devices_agg, mysql_engine
 
 
-def mysql_export(data, devices_agg, mysql_engine):
-
+def mysql_load(data, devices_agg, mysql_engine):
+    """
+    Load
+    input:
+        data: List of tuples
+        devices_agg: aggregated metadata Table in MySQL
+        mysql_engine: MySQL engine
+    return:
+        None
+    """
     all_values = list()
     for row in list(data):  # [0:5]:
         print(row)
-        row_dict = dict(device_id=row[0],
-                        hour=row[1],
-                        data_point_pre_hour=row[2],
-                        max_temperature=row[3],
-                        total_distance_in_km_per_hour=row[4],
-                        )
+        row_dict = dict(
+            device_id=row[0],
+            hour=row[1],
+            data_point_pre_hour=row[2],
+            max_temperature=row[3],
+            total_distance_in_km_per_hour=row[4],
+        )
         all_values += [row_dict]
 
     conn = mysql_engine.connect()

@@ -1,18 +1,20 @@
-from sqlalchemy import (JSON, Column, Integer, MetaData, String, Table,
-                        cast)
-from sqlalchemy.sql import func
-from sqlalchemy.types import String
 from os import environ
-
 from time import sleep
 
-from sqlalchemy import (Column, Integer, MetaData, String, Table,
+from sqlalchemy import (JSON, Column, Integer, MetaData, String, Table, cast,
                         create_engine)
 from sqlalchemy.exc import OperationalError
+from sqlalchemy.sql import func
+from sqlalchemy.types import String
 
 
 def psql_obj():
-    print('Create PostgreSQL object')
+    """
+    Create Table Schema
+    return:
+        devices: device metadata Table in psql
+    """
+    print("Create PostgreSQL object")
     metadata_obj = MetaData()
     devices = Table(
         "devices",
@@ -26,6 +28,11 @@ def psql_obj():
 
 
 def create_psql_engine():
+    """
+    Launch the psql engine
+    return:
+        psql_engine: psql engine
+    """
     while True:
         try:
             psql_engine = create_engine(
@@ -39,13 +46,22 @@ def create_psql_engine():
     print("Connection to PostgresSQL successful.")
     print(environ["POSTGRESQL_CS"])
 
-    devices = psql_obj()
-
-    return devices, psql_engine
+    return psql_engine
 
 
 def etl_psql(devices, session):
-    print('Create ETL PostgreSQL subquery')
+    """
+    Create the etl_psql subquery to aggregate max temperature, count of data points and sum of the distance
+    for each device per each hour
+    input:
+        devices: sqlalchemy devices metadata
+        session: sqlalchemy session
+    output:
+        subquery_distance_temp_count: sqlalchemy query
+    """
+    print("Create ETL PostgreSQL subquery")
+
+    # cast location to json - create hour column
     subquery_location = session.query(
         devices.c.device_id,
         devices.c.time,
@@ -54,6 +70,7 @@ def etl_psql(devices, session):
         (cast(devices.c.time, Integer) / 3600).label("hour"),
     ).subquery()
 
+    # lag window for location
     subquery_location_lag = (
         session.query(
             subquery_location.c.device_id,
@@ -83,6 +100,7 @@ def etl_psql(devices, session):
         .subquery()
     )
 
+    # aggregate max temprature, sum(distance), count(*) for each device per hour
     subquery_distance_temp_count = (
         session.query(
             subquery_location_lag.c.device_id,
