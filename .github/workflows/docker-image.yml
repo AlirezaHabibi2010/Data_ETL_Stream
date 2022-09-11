@@ -8,10 +8,5 @@ jobs:
       - name: Build the stack
         run: docker-compose up -d
 
-      - name: Sleep for 60 seconds
-        uses: jakejarvis/wait-action@master
-        with:
-          time: '60s'
-
       - name: Check running containers
         run: docker ps
