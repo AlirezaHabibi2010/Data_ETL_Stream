@@ -13,21 +13,21 @@ print("ETL Starting...")
 # Create the psql engine and make a session
 psql_engine = create_psql_engine()
 
-# device metadata Table in psql
+# Devices Table metadata in psql
 devices = psql_obj()
 
 Session = sessionmaker(bind=psql_engine)
 session = Session()
 
-# create subquery for extract and transform the data
-# etl_psql aggegate max temperature, count of data points and sum of the distance
+# Create subquery for extract and transform the data
+# etl_psql aggegates max temperature, amount of data points and total distance
 # for each device per each hour
 etl_subquery = etl_psql(devices, session)
 
-# query the etl_subquary and recive the data
+# Query the etl_subquary and recive the data
 data_agg = session.query(etl_subquery)
 
-# print the agg data
+# Print the aggegated data
 if True:
     for row in list(data_agg):  # [0:5]:
         print(row)
@@ -41,7 +41,7 @@ devices_agg, mysql_engine = create_mysql_engine(drop_if_exist=True)
 # Load data_agg to Table ('devices_agg')
 mysql_load(data_agg, devices_agg, mysql_engine)
 
-# print the 'devices_agg' table from MySQL
+# Print the 'devices_agg' table from MySQL
 if True:
     Session_sql = sessionmaker(bind=mysql_engine)
     session_sql = Session_sql()

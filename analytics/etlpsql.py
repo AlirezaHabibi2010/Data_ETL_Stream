@@ -61,7 +61,7 @@ def etl_psql(devices, session):
     """
     print("Create ETL PostgreSQL subquery")
 
-    # cast location to json - create hour column
+    # Cast location to json - create hour column
     subquery_location = session.query(
         devices.c.device_id,
         devices.c.time,
@@ -70,7 +70,7 @@ def etl_psql(devices, session):
         (cast(devices.c.time, Integer) / 3600).label("hour"),
     ).subquery()
 
-    # lag window for location
+    # Lag window for location
     subquery_location_lag = (
         session.query(
             subquery_location.c.device_id,
@@ -100,7 +100,7 @@ def etl_psql(devices, session):
         .subquery()
     )
 
-    # aggregate max temprature, sum(distance), count(*) for each device per hour
+    # Aggregate max temprature, sum(distance), count(*) for each device per hour
     subquery_distance_temp_count = (
         session.query(
             subquery_location_lag.c.device_id,
