@@ -29,9 +29,10 @@ def drop_table(table_name, engine):
     try:
         table = metadata.tables[table_name]
         if table is not None:
-             Base.metadata.drop_all(engine, [table], checkfirst=True)
+            Base.metadata.drop_all(engine, [table], checkfirst=True)
     except:
         pass
+
 
 def create_mysql_engine(drop_if_exist=0):
     while True:

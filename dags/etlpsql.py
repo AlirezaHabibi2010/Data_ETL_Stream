@@ -12,6 +12,11 @@ from sqlalchemy.exc import OperationalError
 
 
 def psql_obj():
+    '''
+    Create Table Schema
+    return:
+        devices: device metadata Table in psql
+    '''
     print('Create PostgreSQL object')
     metadata_obj = MetaData()
     devices = Table(
@@ -26,6 +31,11 @@ def psql_obj():
 
 
 def create_psql_engine():
+    '''
+    Launch the psql engine
+    return:
+        psql_engine: psql engine
+    '''
     while True:
         try:
             psql_engine = create_engine(
@@ -39,12 +49,19 @@ def create_psql_engine():
     print("Connection to PostgresSQL successful.")
     print(environ["POSTGRESQL_CS"])
 
-    devices = psql_obj()
-
-    return devices, psql_engine
+    return psql_engine
 
 
 def etl_psql(devices, session):
+    '''
+    Create the etl_psql subquery to aggregate max temperature, count of data points and sum of the distance
+    for each device per each hour
+    input:
+        devices: sqlalchemy devices metadata
+        session: sqlalchemy session
+    output:
+        subquery_distance_temp_count: sqlalchemy query
+    '''
     print('Create ETL PostgreSQL subquery')
     subquery_location = session.query(
         devices.c.device_id,
