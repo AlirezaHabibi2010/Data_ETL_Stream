@@ -5,7 +5,7 @@ from etlpsql import create_psql_engine, etl_psql, psql_obj
 from sqlalchemy.orm import sessionmaker
 
 print("Waiting for the data generator...")
-sleep(1)
+sleep(20)
 print("ETL Starting...")
 
 ##########################################################
