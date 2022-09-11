@@ -29,6 +29,10 @@ The analytics.py file creates an ETL pipeline does the following:
     3. Total distance of device movement for every device per hours.
 - Store this aggregated data into the provided MySQL database
 
+
+
+
+The structure of the MySQL table (*'devices_agg'*) is the following:
 |Property Name Data Type Data|Type| Comment|
 |---|---|---|
 |device_id|UUID|The unique ID of the device  sending the data.|
