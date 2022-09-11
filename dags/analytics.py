@@ -43,3 +43,7 @@ session_sql = Session_sql()
 
 for row in list(session_sql.query(devices_agg).all()):  # [0:5]:
     print(row)
+
+with open('/app_dag/out.txt', 'w') as f:
+    for row in list(session_sql.query(devices_agg).all()):
+        f.write(str(row)+'\n')
